@@ -17,6 +17,20 @@ class CategoryController {
     }
   }
 
+  static async findCategoryById(req, res, next) {
+    const { id } = req.params;
+    try {
+      const categoryFinded = await Categories.findById(id);
+      if (categoryFinded) {
+        res.status(200).send(categoryFinded);
+      } else {
+        next(new NotFound(`Category ${id} not found`));
+      }
+    } catch (err) {
+      next(err);
+    }
+  }
+
   static async createCategory(req, res, next) {
     const newCategory = {
       title: req.body.title,
@@ -42,15 +56,19 @@ class CategoryController {
 
   static async updateCategory(req, res, next) {
     const { id } = req.params;
+    const newCategory = {
+      title: req.body.title,
+      description: req.body.description,
+    };
 
     try {
-      const categoryExisted = await Categories.findByIdAndUpdate(id, { $set: req.body });
+      const categoryExisted = await Categories.findByIdAndUpdate(id, { $set: newCategory });
 
       if (!categoryExisted) {
         next(new NotFound(`Category ${id} not exist`));
       } else {
-        const newCategory = await Categories.findById(id);
-        res.status(200).send(newCategory);
+        const categoryUpdated = await Categories.findById(id);
+        res.status(200).send(categoryUpdated);
       }
     } catch (err) {
       next(err);
@@ -66,7 +84,7 @@ class CategoryController {
       if (!categoryExisted) {
         next(new NotFound(`Category ${id} not exist`));
       } else {
-        res.status(200).send(`Category ${id} deleted`);
+        res.status(204).send(`Category ${id} deleted`);
       }
     } catch (err) {
       next(err);
