@@ -55,7 +55,7 @@ We will assess the following aspects of your solution:
 
 - Knowledge of JavaScript, Node.js, and Express.js.
 - Proper structure of the application layers.
-- Handling of outgoing calls.
+- Handling of outgoing calls. 
 - Effective use of environment variables.
 - Implementation of unit tests.
 - Logging mechanisms.
