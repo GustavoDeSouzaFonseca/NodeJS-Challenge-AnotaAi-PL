@@ -56,6 +56,22 @@ class CategoryController {
       next(err);
     }
   }
+
+  static async deleteCategory(req, res, next) {
+    const { id } = req.params;
+
+    try {
+      const categoryExisted = await Categories.findByIdAndDelete(id);
+
+      if (!categoryExisted) {
+        next(new NotFound(`Category ${id} not exist`));
+      } else {
+        res.status(200).send(`Category ${id} deleted`);
+      }
+    } catch (err) {
+      next(err);
+    }
+  }
 }
 
 export default CategoryController;
