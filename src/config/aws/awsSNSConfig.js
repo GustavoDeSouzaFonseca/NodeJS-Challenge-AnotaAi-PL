@@ -7,6 +7,6 @@ AWS.config.update({
   region: 'us-east-1',
 });
 
-const sns = new AWS.SNS();
+const snsClient = new AWS.SNS();
 
-export default sns;
+export default snsClient;

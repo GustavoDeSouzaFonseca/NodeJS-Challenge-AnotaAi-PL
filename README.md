@@ -124,6 +124,22 @@ Folder to all configuration, the project use mongodb as databaase NoSQL
     String connection is default mongodb://localhost:27017
     after '/' the database`s name product-catalogy
 
+  - aws
+    - awsSNSConfig.js
+    ```
+    import AWS from 'aws-sdk';
+
+    AWS.config.update({
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      region: 'us-east-1',
+    });
+
+    const sns = new AWS.SNS();
+
+    export default sns;
+    ```
+
 ### Endpoints
 
 The API exposes the following *endpoints* from the *BASE_URL*:*PORT* `http://localhost:8080`

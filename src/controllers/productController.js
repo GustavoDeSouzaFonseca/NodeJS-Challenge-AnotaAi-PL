@@ -1,6 +1,7 @@
 import NotFound from '../errors/notFound.js';
 import Categories from '../models/category.js';
 import Products from '../models/product.js';
+import AwsSnsService from '../services/snsController.js';
 
 class ProductController {
   static async listAllProducts(_, res, next) {
@@ -30,12 +31,14 @@ class ProductController {
         title: req.body.title,
         description: req.body.description,
         price: Number(req.body.price),
+        ownerId: Number(req.body.ownerId),
         Category: categoryExisted.toObject(),
       };
 
       const product = new Products(newProduct);
       await product.save();
 
+      AwsSnsService.recordMessage(product.ownerId.toString());
       res.status(201).send(product);
     } catch (err) {
       next(err);
@@ -44,12 +47,15 @@ class ProductController {
 
   static async updateProduct(req, res, next) {
     const { id } = req.params;
+    let categoryExisted;
     try {
-      const categoryExisted = await Categories.findById(req.body.categoryId);
+      if (req.body.categoryId) {
+        categoryExisted = await Categories.findById(req.body.categoryId);
 
-      if (!categoryExisted) {
-        next(new NotFound(`Category ${req.body.categoryId} not found`));
-        return;
+        if (!categoryExisted) {
+          next(new NotFound(`Category ${req.body.categoryId} not found`));
+          return;
+        }
       }
 
       // without prevValue, $set update with null other values just Object Category
@@ -57,7 +63,7 @@ class ProductController {
         ...(req.body.title && { title: req.body.title }),
         ...(req.body.description && { description: req.body.description }),
         ...(req.body.price !== undefined && { price: Number(req.body.price) }),
-        Category: categoryExisted.toObject(),
+        ...(req.body.Category && { Category: categoryExisted.toObject() }),
       };
 
       const productExisted = await Products.findByIdAndUpdate(id, { $set: updateFields });
@@ -66,6 +72,8 @@ class ProductController {
         next(new NotFound(`Product ${id} not exist`));
       } else {
         const productUpdated = await Products.findById(id);
+        AwsSnsService.recordMessage(productExisted.ownerId.toString());
+
         res.status(200).send(productUpdated);
       }
     } catch (err) {
@@ -82,7 +90,7 @@ class ProductController {
       if (!productExisted) {
         next(new NotFound(`Product ${id} not exist`));
       } else {
-        res.status(204).send(`Product ${id} deleted`);
+        res.status(200).send(`Product ${id} deleted`);
       }
     } catch (err) {
       next(err);
