@@ -5,7 +5,6 @@ import db from './config/db/mongodbConfig.js';
 import routes from './routes/index.js';
 import errorsMiddlewares from './middlewares/errorsMiddlewares.js';
 import notFoundMiddleware from './middlewares/notFoundMiddleware.js';
-import sns from './config/aws/awsSNSConfig.js';
 
 dotenv.config();
 
@@ -16,17 +15,6 @@ db.once('open', () => {
 const app = express();
 
 routes(app);
-
-// Endpoint para verificar a conexão com o SNS
-app.get('/check-sns', async (req, res) => {
-  try {
-    const result = await sns.listTopics().promise();
-    res.status(200).json({ success: true, message: 'Conexão com o SNS bem-sucedida!', data: result });
-  } catch (error) {
-    console.error('Erro ao verificar a conexão com o SNS:', error);
-    res.status(500).json({ success: false, message: 'Erro ao verificar a conexão com o SNS', error: error.message });
-  }
-});
 
 app.use(notFoundMiddleware);
 app.use(errorsMiddlewares);

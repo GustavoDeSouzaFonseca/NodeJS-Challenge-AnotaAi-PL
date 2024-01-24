@@ -140,6 +140,16 @@ Folder to all configuration, the project use mongodb as databaase NoSQL
     export default sns;
     ```
 
+### .env
+
+AWS settings must be saved, if you wish you can enter BASE_URL and PORT according to your preferences.
+
+```
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_SNS_TOPIC_ARN=
+```
+
 ### Endpoints
 
 The API exposes the following *endpoints* from the *BASE_URL*:*PORT* `http://localhost:8080`
@@ -158,3 +168,6 @@ BASE_URL and PORT could be used by .env
   * `POST /products - createProduct`
   * `PUT /products - updateProductById`
   * `DELETE /products - deleteProductById`
+
+`/check-sns`
+  * `GET /check-sns - testingConnectionAwsSns`
