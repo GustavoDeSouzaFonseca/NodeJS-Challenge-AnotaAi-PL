@@ -17,6 +17,20 @@ class CategoryController {
     }
   }
 
+  static async findCategoryByTitle(req, res, next) {
+    const categoryExisted = await Categories.findOne({ title: req.params.title });
+
+    try {
+      if (categoryExisted) {
+        res.status(200).send(categoryExisted);
+      } else {
+        next(new NotFound(`${categoryExisted.title} not found`));
+      }
+    } catch (err) {
+      next(err);
+    }
+  }
+
   static async findCategoryById(req, res, next) {
     const { id } = req.params;
     try {
@@ -82,9 +96,9 @@ class CategoryController {
       const categoryExisted = await Categories.findByIdAndDelete(id);
 
       if (!categoryExisted) {
-        next(new NotFound(`Category ${id} not exist`));
+        next(new NotFound(`Category ${id} isn't exist`));
       } else {
-        res.status(204).send(`Category ${id} deleted`);
+        res.status(200).send(`Category ${id} was deleted`);
       }
     } catch (err) {
       next(err);
