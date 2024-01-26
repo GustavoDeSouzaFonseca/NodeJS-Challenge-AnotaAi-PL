@@ -8,7 +8,7 @@ const productSchema = mongoose.Schema(
     description: { type: String },
     ownerId: { type: String },
     price: { type: Number },
-    Category: { type: Object, required: true },
+    categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
   },
   {
     versionKey: false,

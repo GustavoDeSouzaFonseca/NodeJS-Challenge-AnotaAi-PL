@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import NotFound from '../errors/notFound.js';
 import Categories from '../models/category.js';
 import Products from '../models/product.js';
@@ -32,13 +33,18 @@ class ProductController {
         description: req.body.description,
         price: Number(req.body.price),
         ownerId: Number(req.body.ownerId),
-        Category: categoryExisted.toObject(),
+        categoryId: categoryExisted._id,
       };
 
       const product = new Products(newProduct);
       await product.save();
 
-      AwsSnsService.recordMessage(product.ownerId.toString());
+      const messageToConsumer = {
+        ...product.toObject(),
+        type: 'product',
+      };
+
+      AwsSnsService.recordMessage(messageToConsumer);
       res.status(201).send(product);
     } catch (err) {
       next(err);
@@ -63,7 +69,7 @@ class ProductController {
         ...(req.body.title && { title: req.body.title }),
         ...(req.body.description && { description: req.body.description }),
         ...(req.body.price !== undefined && { price: Number(req.body.price) }),
-        ...(req.body.Category && { Category: categoryExisted.toObject() }),
+        ...(req.body.categoryId && { categoryId: categoryExisted }),
       };
 
       const productExisted = await Products.findByIdAndUpdate(id, { $set: updateFields });
@@ -72,8 +78,11 @@ class ProductController {
         next(new NotFound(`Product ${id} not exist`));
       } else {
         const productUpdated = await Products.findById(id);
-        AwsSnsService.recordMessage(productExisted.ownerId.toString());
-
+        const messageToConsumer = {
+          ...productUpdated.toObject(),
+          type: 'product',
+        };
+        AwsSnsService.recordMessage(messageToConsumer);
         res.status(200).send(productUpdated);
       }
     } catch (err) {

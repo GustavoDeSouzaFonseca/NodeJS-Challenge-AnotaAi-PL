@@ -1,6 +1,7 @@
 import ErrorBase from '../errors/errorBase.js';
 import NotFound from '../errors/notFound.js';
 import Categories from '../models/category.js';
+import AwsSnsService from '../services/snsController.js';
 
 class CategoryController {
   static async listAllCategories(_, res, next) {
@@ -61,6 +62,12 @@ class CategoryController {
         const category = new Categories(newCategory);
         await category.save();
 
+        const messageToConsumer = {
+          ...category.toObject(),
+          type: 'category',
+        };
+
+        AwsSnsService.recordMessage(messageToConsumer);
         res.status(201).send(category);
       }
     } catch (err) {
@@ -82,6 +89,13 @@ class CategoryController {
         next(new NotFound(`Category ${id} not exist`));
       } else {
         const categoryUpdated = await Categories.findById(id);
+
+        const messageToConsumer = {
+          ...categoryUpdated.toObject(),
+          type: 'category',
+        };
+
+        AwsSnsService.recordMessage(messageToConsumer);
         res.status(200).send(categoryUpdated);
       }
     } catch (err) {
